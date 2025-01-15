@@ -5,27 +5,65 @@
 #ifndef KIBIC_H
 #define KIBIC_H
 #include <string>
-#include <thread>
+#include <unistd.h>
+#include <stdio.h>
+
+
 using namespace std;
 
+enum Status {
+    REGULAR,
+    VIP
+};
+
+enum Club {
+    FC_BARCELONA,
+    REAL_MADRYT
+};
 
 class kibic {
 private:
     string name;
     string surname;
     unsigned int age;
+
+
     pid_t fanPid;
+    Club club;
+    Status status;
+
+
 
     void generateRandomData(unsigned int seed);
 
-    public:
+    void generateRandomStatus();
+
+    void generateRandomClub();
+
+public:
+
+
     kibic();
+
     ~kibic();
+
     bool isAdult();
+
     string getName();
+
     string getSurname();
+
     unsigned int getAge();
 
+    Status getStatus();
+
+    string getClubAsString();
+
+    bool isVIP();
+
+    bool isSameClub(Club otherClub);
+
+    string getStatusAsString();
 };
 
 

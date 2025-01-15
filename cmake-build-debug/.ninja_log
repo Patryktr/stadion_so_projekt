@@ -1,4 +1,18 @@
 # ninja log v6
-5	553	7585048336801344	CMakeFiles/stadion.dir/main.cpp.obj	aacf1aa3bf056efc
-10	645	7585048336846153	CMakeFiles/stadion.dir/kibic.cpp.obj	57b01c9638b8ddc6
-645	733	7585048343209691	stadion.exe	31ebfc1f49a5ef83
+4	527	7585898254684125	CMakeFiles/stadion.dir/main.cpp.obj	aacf1aa3bf056efc
+24	720	7585864824959086	CMakeFiles/stadion.dir/kibic.cpp.obj	57b01c9638b8ddc6
+721	806	7585864831929096	stadion.exe	7171ab6e4f7fc904
+62	143	7585812636182896	CMakeFiles/stadion.dir/stadion.cpp.obj	b4241988536f3abf
+20	61	7585910780840725	CMakeFiles/stadion.dir/stadion.cpp.obj	b4241988536f3abf
+14	444	7585910780777961	CMakeFiles/stadion.dir/main.cpp.obj	aacf1aa3bf056efc
+18	520	7585910780819966	CMakeFiles/stadion.dir/kibic.cpp.obj	57b01c9638b8ddc6
+520	675	7585910785839574	stadion.exe	7171ab6e4f7fc904
+21	429	7585913941121392	CMakeFiles/stadion.dir/main.cpp.obj	aacf1aa3bf056efc
+24	488	7585913941156650	CMakeFiles/stadion.dir/kibic.cpp.obj	57b01c9638b8ddc6
+488	570	7585913945792702	stadion.exe	7171ab6e4f7fc904
+22	436	7585914162585076	CMakeFiles/stadion.dir/main.cpp.obj	aacf1aa3bf056efc
+436	511	7585914166724078	stadion.exe	7171ab6e4f7fc904
+18	428	7585914354040698	CMakeFiles/stadion.dir/main.cpp.obj	aacf1aa3bf056efc
+429	507	7585914358150960	stadion.exe	7171ab6e4f7fc904
+19	427	7585914612575956	CMakeFiles/stadion.dir/main.cpp.obj	aacf1aa3bf056efc
+427	503	7585914616665194	stadion.exe	7171ab6e4f7fc904

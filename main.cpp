@@ -4,7 +4,16 @@
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 int main() {
 kibic k1=kibic();
+kibic k2=kibic();
+    kibic k3=kibic();
+     std::cout<< k1.getStatus();
+     std::cout<< k2.getStatus();
+    std::cout<<  k3.getStatus();
+    std::cout<<  k1.getClubAsString();
+   std::cout<<   k2.getClubAsString();
+   std::cout<<   k3.getClubAsString();
     std::cout<< k1.isAdult();
+ pid_t pid ;
 
     return 0;
 }

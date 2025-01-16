@@ -1,11 +1,11 @@
 #include <iostream>
-#include "kibic.h"
+#include "Kibic.h"
 // TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 int main() {
-kibic k1=kibic();
-kibic k2=kibic();
-    kibic k3=kibic();
+Kibic k1=Kibic();
+Kibic k2=Kibic();
+    Kibic k3=Kibic();
      std::cout<< k1.getStatus();
      std::cout<< k2.getStatus();
     std::cout<<  k3.getStatus();

@@ -2,7 +2,7 @@
 // Created by patry on 11.01.2025.
 //
 
-#include "kibic.h"
+#include "Kibic.h"
 
 #include <ctime>
 #include <iostream>
@@ -11,7 +11,7 @@
 
 
 
-void kibic::generateRandomData(unsigned int seed) {
+void Kibic::generateRandomData(unsigned int seed) {
     srand(time(nullptr));
     static const string names[] = {
         "Adam", "Ewa", "Marek", "Kasia", "Jan", "Anna", "Tomek", "Agnieszka", "Piotr", "Zosia"
@@ -29,7 +29,7 @@ void kibic::generateRandomData(unsigned int seed) {
     generateRandomClub();
     generateRandomStatus();
 }
-    void kibic::generateRandomStatus() {
+    void Kibic::generateRandomStatus() {
     int randomValue = rand() % 100; // Losujemy liczbę od 0 do 99
     if (randomValue < 5) {
         this->status = VIP; // 5% szans na VIP
@@ -37,7 +37,7 @@ void kibic::generateRandomData(unsigned int seed) {
         this->status = REGULAR; // 95% szans na Regular
     }
 }
-void kibic::generateRandomClub() {
+void Kibic::generateRandomClub() {
     int randomValue = rand() % 2;
     if (randomValue < 0) {
         this->club = FC_BARCELONA;
@@ -45,12 +45,12 @@ void kibic::generateRandomClub() {
         this->club=REAL_MADRYT;
     }
 }
-kibic::kibic() {
-fanPid= fork();
+Kibic::Kibic() {
+this->fanPid= fork();
 
 
-    if (fanPid == 0) {
-        // Proces dziecka (kibic)
+    if (this->fanPid == 0) {
+
         generateRandomData(rand());
         cout << "Kibic proces (PID: " << getpid() << "): " << name << " " << surname << " (" << getStatusAsString()
              << ", " << getClubAsString() << ")" << endl;
@@ -66,42 +66,42 @@ fanPid= fork();
 
 }
 
-kibic::~kibic() {
+Kibic::~Kibic() {
 }
 
 
-bool kibic::isAdult() {
+bool Kibic::isAdult() {
     return this->age >= 18;
 }
 
-string kibic::getName() {
+string Kibic::getName() {
     return this->name;
 }
 
-string kibic::getSurname() {
+string Kibic::getSurname() {
     return this->surname;
 }
 
-unsigned kibic::getAge() {
+unsigned Kibic::getAge() {
     return this->age;
 }
-Status kibic::getStatus() {
+Status Kibic::getStatus() {
     return this->status;
 }
-bool kibic::isVIP() {
+bool Kibic::isVIP() {
     return this->status==VIP;
 }
-bool kibic::isSameClub(Club otherClub) {
+bool Kibic::isSameClub(Club otherClub) {
     return this->club == otherClub;
 }
-string kibic::getClubAsString() {
+string Kibic::getClubAsString() {
     switch (club) {
         case FC_BARCELONA: return "F.C Barcelona";
         case REAL_MADRYT: return "Real Madryt";
         default: return "Unknown";
     }
 }
-string kibic::getStatusAsString() {
+string Kibic::getStatusAsString() {
     switch (status) {
         case REGULAR: return "Regular";
         case VIP: return "VIP";

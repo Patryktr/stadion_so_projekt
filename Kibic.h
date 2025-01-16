@@ -21,7 +21,7 @@ enum Club {
     REAL_MADRYT
 };
 
-class kibic {
+class Kibic {
 private:
     string name;
     string surname;
@@ -43,9 +43,9 @@ private:
 public:
 
 
-    kibic();
+    Kibic();
 
-    ~kibic();
+    ~Kibic();
 
     bool isAdult();
 

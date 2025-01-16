@@ -4,7 +4,9 @@ project(stadion)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(stadion main.cpp
-        kibic.cpp
-        kibic.h
-        stadion.cpp
-        stadion.h)
+        Kibic.cpp
+        Kibic.h
+        Stadion.cpp
+        Stadion.h
+        Kierownik.cpp
+        Kierownik.h)

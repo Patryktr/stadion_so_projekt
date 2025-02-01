@@ -1,30 +1,27 @@
-//
-// Created by patry on 13.01.2025.
-//
-
 #ifndef STADION_H
 #define STADION_H
-
-
+#include "Gate.h"
+#include <vector>
+#include <mutex>
 
 class Stadion {
 private:
     int capacity;
     int currentNumberOfFans;
+    Gate g1, g2, g3;
     static Stadion* instance;
+    static mutex instanceMutex;
 
-    Stadion (int maxCapacity):capacity(maxCapacity),currentNumberOfFans(0){}
+    Stadion(int maxCapacity);
+    ~Stadion();
+
 public:
-    //uzywam singletona
     static Stadion* getInstance(int maxCapacity);
-    bool admitFan();
-    bool removeFan();
-    void clearStadium();
-    int getCurrentNumberOfFans();
-    int getCapacity();
-
+    static void releaseInstance();
+    bool hasSpace() const;
+    void addFan();
+    void displayStatus();
+    Gate* getGate(int gateNumber);
 };
 
-
-
-#endif //STADION_H
+#endif // STADION_H

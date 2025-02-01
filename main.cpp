@@ -1,24 +1,65 @@
+#include <csignal>
 #include <iostream>
-#include "Kibic.h"
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-int main() {
-Kibic k1=Kibic();
-Kibic k2=Kibic();
-    Kibic k3=Kibic();
-     std::cout<< k1.getStatus();
-     std::cout<< k2.getStatus();
-    std::cout<<  k3.getStatus();
-    std::cout<<  k1.getClubAsString();
-   std::cout<<   k2.getClubAsString();
-   std::cout<<   k3.getClubAsString();
-    std::cout<< k1.isAdult();
- pid_t pid ;
 
+#include <sys/shm.h>
+#include <sys/msg.h>
+
+#include "Stadion.h"
+#include "Fan.h"
+#include "Gate.h"
+#include "Pracownik_tech.h"
+int shmID;
+int msgQueueID;
+bool terminateSimulation = false;
+
+void signal_handler(int sig) {
+    if (sig == SIGINT) {
+        std::cout << "Zatrzymywanie symulacji..." << std::endl;
+        terminateSimulation = true;
+        // Create an instance or ensure a valid instance of Pracownik_tech to call stopWorkers
+        Pracownik_tech worker(nullptr);
+        worker.stopWorkers(msgQueueID);
+        msgctl(msgQueueID, IPC_RMID, NULL);
+        shmctl(shmID, IPC_RMID, NULL);
+        Stadion::releaseInstance();
+        exit(0);
+    }
+}
+int main() {
+    Stadion* stadion = Stadion::getInstance(10);
+
+    signal(SIGINT, signal_handler);
+
+    shmID = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
+    int* sharedCount = (int*)shmat(shmID, NULL, 0);
+    *sharedCount = 0;
+
+    msgQueueID = msgget(IPC_PRIVATE, IPC_CREAT | 0666);
+
+
+    std::vector<Gate*> gates = { stadion->getGate(1), stadion->getGate(2), stadion->getGate(3) };
+
+    Pracownik_tech::startWorkers(gates, msgQueueID);
+
+
+    for (int i = 0; i < 999; i++) {
+        if (fork() == 0) {
+            Fan fan;
+            fan.generateRandomSFan();
+            std::cout << "[DEBUG] Dodano kibica " << fan.getName()
+                      << " (Bramka: " << fan.getGate() << ") do kolejki." << std::endl;
+            msgsnd(msgQueueID, &fan, sizeof(Fan), 0);
+            exit(0);
+        }
+    }
+    Pracownik_tech::startProcessing();
+
+    while (!terminateSimulation) {
+        sleep(3); // Co 3 sekundy sprawdzamy stan stadionu
+        stadion->displayStatus();
+    }
+
+    Pracownik_tech::stopWorkers(msgQueueID);
+    Stadion::releaseInstance();
     return 0;
 }
-
-// TIP See CLion help at <a
-// href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>.
-//  Also, you can try interactive lessons for CLion by selecting
-//  'Help | Learn IDE Features' from the main menu.

@@ -1,23 +1,30 @@
 #include "Stadion.h"
-
 #include <iostream>
-#include <stdexcept>
 #include <mutex>
 
 Stadion* Stadion::instance = nullptr;
 std::mutex Stadion::instanceMutex;
 
-Stadion::Stadion(int maxCapacity)
+Stadion::Stadion(int maxCapacity, int shmID)
     : capacity(maxCapacity),
-      currentNumberOfFans(0),
-      g1(3,"bramka 1"), g2(3,"bramka 2"), g3(3,"bramka 3") {}
+      g1(3, "Bramka 1"), g2(3, "Bramka 2"), g3(3, "Bramka 3") {
 
-Stadion::~Stadion() {}
+    sharedFanCount = (int*)shmat(shmID, NULL, 0);
+    if (sharedFanCount == (void*)-1) {
+        perror("Błąd przy podłączaniu pamięci współdzielonej");
+        exit(1);
+    }
+    *sharedFanCount = 0; // Inicjalizacja liczby kibiców na 0
+}
 
-Stadion* Stadion::getInstance(int maxCapacity) {
+Stadion::~Stadion() {
+    shmdt(sharedFanCount);
+}
+
+Stadion* Stadion::getInstance(int maxCapacity, int shmID) {
     std::lock_guard<std::mutex> lock(instanceMutex);
     if (!instance) {
-        instance = new Stadion(maxCapacity);
+        instance = new Stadion(maxCapacity, shmID);
     }
     return instance;
 }
@@ -31,31 +38,36 @@ void Stadion::releaseInstance() {
 }
 
 bool Stadion::hasSpace() const {
-    return currentNumberOfFans < capacity;
+    return *sharedFanCount < capacity;
 }
 
 void Stadion::addFan() {
-    if (currentNumberOfFans < capacity) {
-        currentNumberOfFans++;
+    if (*sharedFanCount < capacity) {
+        (*sharedFanCount)++;
+        displayStatus();
     }
 }
 
-Gate* Stadion::getGate(int gateNumber) { // Zmieniono na wskaźnik
+void Stadion::displayStatus() {
+    std::cout << "\n===== STAN STADIONU =====\n";
+    std::cout << "Aktualna liczba kibiców: " << *sharedFanCount << "/" << capacity << "\n";
+    std::cout << "Bramki: \n";
+    std::cout << " - " << g1.getName() << "\n";
+    std::cout << " - " << g2.getName() << "\n";
+    std::cout << " - " << g3.getName() << "\n";
+    std::cout << "==========================\n\n";
+}
+
+Gate* Stadion::getGate(int gateNumber) {
     switch (gateNumber) {
         case 1: return &g1;
         case 2: return &g2;
         case 3: return &g3;
         default:
-            throw std::invalid_argument("Invalid gate number");
+            throw std::invalid_argument("Niepoprawny numer bramki");
     }
 }
 
-void Stadion::displayStatus() {
-    cout << "\n===== STAN STADIONU =====\n";
-    cout << "Aktualna liczba kibiców: " << currentNumberOfFans << "/" << capacity << "\n";
-    cout << "Bramki: \n";
-    cout << " - " << g1.getName() << "\n";
-    cout << " - " << g2.getName() << "\n";
-    cout << " - " << g3.getName() << "\n";
-    cout << "==========================\n\n";
+int Stadion::getCapacity() const {
+    return capacity;
 }

@@ -36,6 +36,7 @@ public:
     unsigned int  getGate();
     unsigned int  getAge();
     Club getClub();
+    pid_t getFanPid();
     string getName();
     int getPassCount() const ;
     void incrementPassCount();

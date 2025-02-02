@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <sys/shm.h>
 
 #include "Stadion.h"
 
@@ -15,6 +16,8 @@ std::mutex Pracownik_tech::queueMutex;
 
 Pracownik_tech::Pracownik_tech(Gate* gate) : gate(gate) {}
 
+Pracownik_tech::Pracownik_tech(Gate* gate, int msgQueueID, int shmID)
+    : gate(gate), msgQueueID(msgQueueID), shmID(shmID) {}
 
 
 // **Dodawanie kibiców do wspólnej kolejki**
@@ -89,42 +92,49 @@ void Pracownik_tech::startWorkers(std::vector<Gate*>& gates) {
 }*/
 void Pracownik_tech::obslugujKolejke() {
     Fan fan;
-    auto stadion= Stadion:: getInstance(100);
-    std::cout << "[DEBUG] Pracownik przy bramce " << gate->getName() << " rozpoczął obsługę kolejki!" << std::endl;
+    int* sharedFanCount = (int*)shmat(shmID, NULL, 0); // Pobieramy dostęp do pamięci współdzielonej
+
+    if (sharedFanCount == (void*)-1) {
+        perror("[ERROR] Błąd przy podłączaniu pamięci współdzielonej");
+        exit(1);
+    }
+
+    std::cout << "[DEBUG] Pracownik przy " << gate->getName() << " rozpoczął obsługę kolejki!" << std::endl;
 
     while (true) {
         ssize_t result = msgrcv(msgQueueID, &fan, sizeof(Fan), 0, 0);
 
         if (result == -1) {
             perror("[ERROR] msgrcv nie powiodło się");
-            continue; // Uniknięcie zakończenia procesu
+            sleep(1);
+            continue;
         }
 
         std::cout << "[DEBUG] Otrzymano kibica " << fan.getName()
                   << " dla bramki " << gate->getName() << std::endl;
 
         if (gate->tryEnter(fan)) {
-            stadion->addFan();
             std::cout << "Kibic " << fan.getName() << " wszedł przez "
                       << gate->getName() << std::endl;
+
+            (*sharedFanCount)++; // **Teraz liczba kibiców jest aktualizowana w pamięci współdzielonej**
+            std::cout << "[INFO] Aktualna liczba kibiców: " << *sharedFanCount << std::endl;
         }
     }
 }
+
+
 std::vector<pid_t> Pracownik_tech::pracownicy; // Przechowuje PID-y procesów
 
 Pracownik_tech::Pracownik_tech(Gate* gate, int msgQueueID)
     : gate(gate), msgQueueID(msgQueueID) {}
 
-void Pracownik_tech::startWorkers(std::vector<Gate*>& gates, int msgQueueID) {
+void Pracownik_tech::startWorkers(std::vector<Gate*>& gates, int msgQueueID, int shmID) {
     for (Gate* gate : gates) {
         pid_t pid = fork();
 
-        if (pid == 0) { // Proces potomny – czeka na sygnał do startu
-            std::cout << "[DEBUG] Pracownik Techniczny (Bramka " << gate->getName()
-                      << ") gotowy, czeka na sygnał...\n";
-            signal(SIGCONT, SIG_DFL); // Ustawienie domyślnej akcji na SIGCONT
-            pause(); // Czeka na SIGCONT
-            Pracownik_tech pracownik(gate, msgQueueID);
+        if (pid == 0) {  // Proces potomny
+            Pracownik_tech pracownik(gate, msgQueueID, shmID);
             pracownik.obslugujKolejke();
             exit(0);
         } else if (pid > 0) {
@@ -135,6 +145,7 @@ void Pracownik_tech::startWorkers(std::vector<Gate*>& gates, int msgQueueID) {
         }
     }
 }
+
 
 // **Teraz uruchamiamy pracowników jednocześnie**
 void Pracownik_tech::startProcessing() {
@@ -156,6 +167,7 @@ void Pracownik_tech::stopWorkers(int msgQueueID) {
     }
     msgctl(msgQueueID, IPC_RMID, NULL);
 }
+
 
 
 

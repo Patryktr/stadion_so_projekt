@@ -26,40 +26,61 @@ void signal_handler(int sig) {
     }
 }
 int main() {
-    Stadion* stadion = Stadion::getInstance(10);
 
     signal(SIGINT, signal_handler);
 
     shmID = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
-    int* sharedCount = (int*)shmat(shmID, NULL, 0);
-    *sharedCount = 0;
+    if (shmID == -1) {
+        perror("Błąd przy tworzeniu pamięci współdzielonej");
+        exit(1);
+    }
 
     msgQueueID = msgget(IPC_PRIVATE, IPC_CREAT | 0666);
 
-
+    auto stadion = Stadion::getInstance(10, shmID);
     std::vector<Gate*> gates = { stadion->getGate(1), stadion->getGate(2), stadion->getGate(3) };
 
-    Pracownik_tech::startWorkers(gates, msgQueueID);
+    Pracownik_tech::startWorkers(gates, msgQueueID, shmID);
 
-
-    for (int i = 0; i < 999; i++) {
+    for (int i = 0; i < 11; i++) {
         if (fork() == 0) {
+
             Fan fan;
             fan.generateRandomSFan();
+            if (i >= stadion->getCapacity()) {
+                std::cout << "[INFO] Stadion jest pełny! Kibic " << fan.getName() << " nie może wejść." << std::endl;
+                continue;
+            }
+
+            int* sharedFanCount = (int*)shmat(shmID, NULL, 0); // Dodana deklaracja
+
+            if (*sharedFanCount >= stadion->getCapacity()) {
+                std::cout << "[INFO] Stadion jest pełny! Kibic " << fan.getName() << " nie może wejść." << std::endl;
+                shmdt(sharedFanCount);
+                exit(0);
+            }
+
             std::cout << "[DEBUG] Dodano kibica " << fan.getName()
                       << " (Bramka: " << fan.getGate() << ") do kolejki." << std::endl;
             msgsnd(msgQueueID, &fan, sizeof(Fan), 0);
+
+            shmdt(sharedFanCount); // Zwolnienie pamięci współdzielonej
             exit(0);
         }
     }
+
+
     Pracownik_tech::startProcessing();
 
     while (!terminateSimulation) {
-        sleep(3); // Co 3 sekundy sprawdzamy stan stadionu
         stadion->displayStatus();
+        sleep(1);
     }
 
     Pracownik_tech::stopWorkers(msgQueueID);
     Stadion::releaseInstance();
-    return 0;
-}
+    shmctl(shmID, IPC_RMID, NULL);
+
+    }
+
+

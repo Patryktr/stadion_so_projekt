@@ -73,6 +73,10 @@ Club Fan::getClub() {
     return this->club;
 }
 
+pid_t Fan::getFanPid() {
+    return this->fanPid;
+}
+
 string Fan::getName() {
     return this->name;
 }

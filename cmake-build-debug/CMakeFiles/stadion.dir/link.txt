@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/stadion.dir/main.cpp.o CMakeFiles/stadion.dir/Stadion.cpp.o CMakeFiles/stadion.dir/Fan.cpp.o CMakeFiles/stadion.dir/Pracownik_tech.cpp.o CMakeFiles/stadion.dir/Gate.cpp.o -o stadion

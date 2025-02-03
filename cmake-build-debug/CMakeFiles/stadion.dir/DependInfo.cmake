@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/patryk/CLionProjects/stadion_so_projekt/Fan.cpp" "CMakeFiles/stadion.dir/Fan.cpp.o" "gcc" "CMakeFiles/stadion.dir/Fan.cpp.o.d"
   "/home/patryk/CLionProjects/stadion_so_projekt/Gate.cpp" "CMakeFiles/stadion.dir/Gate.cpp.o" "gcc" "CMakeFiles/stadion.dir/Gate.cpp.o.d"
+  "/home/patryk/CLionProjects/stadion_so_projekt/Kierownik.cpp" "CMakeFiles/stadion.dir/Kierownik.cpp.o" "gcc" "CMakeFiles/stadion.dir/Kierownik.cpp.o.d"
   "/home/patryk/CLionProjects/stadion_so_projekt/Pracownik_tech.cpp" "CMakeFiles/stadion.dir/Pracownik_tech.cpp.o" "gcc" "CMakeFiles/stadion.dir/Pracownik_tech.cpp.o.d"
   "/home/patryk/CLionProjects/stadion_so_projekt/Stadion.cpp" "CMakeFiles/stadion.dir/Stadion.cpp.o" "gcc" "CMakeFiles/stadion.dir/Stadion.cpp.o.d"
   "/home/patryk/CLionProjects/stadion_so_projekt/main.cpp" "CMakeFiles/stadion.dir/main.cpp.o" "gcc" "CMakeFiles/stadion.dir/main.cpp.o.d"

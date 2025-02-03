@@ -1,48 +1,33 @@
-//
-// Created by patryk on 1/21/25.
-//
-
 #ifndef FAN_H
 #define FAN_H
-#include <string>
-using namespace std;
-enum Status {
-    REGULAR,
-    VIP,
-    STANDARD_PARENT,
-    STANDARD_KID
-};
 
-enum Club {
-    FC_BARCELONA,
-    REAL_MADRYT
-};
+#include <string>
+#include <cstdlib>
+
+enum Club { REAL_MADRYT, FC_BARCELONA };
+enum FanStatus { OCZEKUJACY, KIBICUJE, NIE_PRZESZEDŁ_KONTROLI, OPUŚCIŁ_STADION };
+enum TicketType { VIP, REGULAR };
 
 class Fan {
-private:
-    string name;
-    unsigned int age;
-    unsigned int gate;
-    Club club;
-    Status status;
-    pid_t fanPid;
-    int passCount;
-
-
-
 public:
-    void generateRandomSFan();
+    long mtype; // **MUSI BYĆ PIERWSZE**
+    int fanID;
+    char name[20];  // **Zmienione na tablicę, aby uniknąć problemów z wskaźnikami**
+    Club club;
+    FanStatus status;
+    TicketType ticketType;
+    int gate;
+
     Fan();
-    unsigned int  getGate();
-    unsigned int  getAge();
-    Club getClub();
-    pid_t getFanPid();
-    string getName();
-    int getPassCount() const ;
-    void incrementPassCount();
-    void resetPassCount();
+    void generateRandomSFan();
+    bool kontrolaBezpieczenstwa() const;
+
+    std::string getName() const;
+    int getGate() const;
+    Club getClub() const;
+    FanStatus getStatus() const;
+    TicketType getTicketType() const;
+    void setStatus(FanStatus newStatus);
 };
 
-
-
-#endif //FAN_H
+#endif // FAN_H

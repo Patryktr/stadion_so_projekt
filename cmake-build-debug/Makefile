@@ -177,6 +177,30 @@ Gate.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/stadion.dir/build.make CMakeFiles/stadion.dir/Gate.cpp.s
 .PHONY : Gate.cpp.s
 
+Kierownik.o: Kierownik.cpp.o
+.PHONY : Kierownik.o
+
+# target to build an object file
+Kierownik.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/stadion.dir/build.make CMakeFiles/stadion.dir/Kierownik.cpp.o
+.PHONY : Kierownik.cpp.o
+
+Kierownik.i: Kierownik.cpp.i
+.PHONY : Kierownik.i
+
+# target to preprocess a source file
+Kierownik.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/stadion.dir/build.make CMakeFiles/stadion.dir/Kierownik.cpp.i
+.PHONY : Kierownik.cpp.i
+
+Kierownik.s: Kierownik.cpp.s
+.PHONY : Kierownik.s
+
+# target to generate assembly for a file
+Kierownik.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/stadion.dir/build.make CMakeFiles/stadion.dir/Kierownik.cpp.s
+.PHONY : Kierownik.cpp.s
+
 Pracownik_tech.o: Pracownik_tech.cpp.o
 .PHONY : Pracownik_tech.o
 
@@ -264,6 +288,9 @@ help:
 	@echo "... Gate.o"
 	@echo "... Gate.i"
 	@echo "... Gate.s"
+	@echo "... Kierownik.o"
+	@echo "... Kierownik.i"
+	@echo "... Kierownik.s"
 	@echo "... Pracownik_tech.o"
 	@echo "... Pracownik_tech.i"
 	@echo "... Pracownik_tech.s"

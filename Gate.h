@@ -1,11 +1,11 @@
-
-
-// Gate.h - Klasa bramki
 #ifndef GATE_H
 #define GATE_H
 #include "Fan.h"
 #include <vector>
 #include <semaphore.h>
+#include <string>
+
+using namespace std;
 
 class Gate {
 private:
@@ -16,11 +16,12 @@ private:
     string gateName;
 
 public:
-    Gate(int capacity,string gateName);
+    Gate(int capacity, string gateName);
     ~Gate();
     bool tryEnter(Fan fan);
     void leaveGate(Fan fan);
     bool hasSpaceAndAccepts(Club club) const;
     string getName() const;
 };
-#endif
+
+#endif // GATE_H

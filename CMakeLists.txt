@@ -12,4 +12,6 @@ add_executable(stadion main.cpp
         Pracownik_tech.h
         Gate.cpp
         Gate.h
+        Kierownik.cpp
+        Kierownik.h
 )

@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/stadion.dir/Fan.cpp.o.d"
   "CMakeFiles/stadion.dir/Gate.cpp.o"
   "CMakeFiles/stadion.dir/Gate.cpp.o.d"
+  "CMakeFiles/stadion.dir/Kierownik.cpp.o"
+  "CMakeFiles/stadion.dir/Kierownik.cpp.o.d"
   "CMakeFiles/stadion.dir/Pracownik_tech.cpp.o"
   "CMakeFiles/stadion.dir/Pracownik_tech.cpp.o.d"
   "CMakeFiles/stadion.dir/Stadion.cpp.o"

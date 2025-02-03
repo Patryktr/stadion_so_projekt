@@ -1,18 +1,11 @@
-//
-// Created by patryk on 1/27/25.
-//
-
 #include "Gate.h"
-
 #include <iostream>
 #include <semaphore.h>
-
 #include <unistd.h>
 
+Gate::Gate(int capacity, string gate_name)
+    : gateCapacity(capacity), gateName(gate_name), currentClub(static_cast<Club>(-1)), currentNumberOfFans(0) {
 
-Gate::Gate(int capacity, string gate_name): gateCapacity(capacity), gateName(gate_name),
-                                            currentClub(static_cast<Club>(-1)) {
-    // Inicjalizacja semafora lokalnego
     if (sem_init(&gateSemaphore, 0, gateCapacity) == -1) {
         perror("sem_init failed");
         exit(1);
@@ -23,64 +16,65 @@ Gate::~Gate() {
     sem_destroy(&gateSemaphore);
 }
 
-
 void Gate::leaveGate(Fan fan) {
-    currentNumberOfFans--;
+    sleep(rand() % 10 + 10);  // Kibic zostaje w bramce przez 10-20 sekund
 
-    std::cout << "Fan " << fan.getName() << " opuścił " << gateName
-            << ". Pozostało w bramce: " << currentNumberOfFans << "\n";
-
-    // Jeśli bramka jest pusta, resetujemy jej przypisanie do klubu
-    if (currentNumberOfFans == 0) {
-        currentClub = static_cast<Club>(-1);
-        std::cout << gateName << " jest teraz pusta i gotowa na nowych kibiców.\n";
+    if (currentNumberOfFans > 0) {  // **Nie pozwalamy zejść poniżej 0!**
+        currentNumberOfFans--;
+    } else {
+        std::cerr << "[ERROR] Błąd! `currentNumberOfFans` w " << gateName << " spadło poniżej 0!\n";
+        return;
     }
 
-    sem_post(&gateSemaphore); // **Zwolnij miejsce w semaforze!**
+    std::cout << "[INFO] Kibic " << fan.getName() << " opuścił " << gateName
+              << ". Pozostało w bramce: " << currentNumberOfFans << "\n";
+
+    if (currentNumberOfFans == 0) {
+        currentClub = static_cast<Club>(-1);
+        std::cout << "[INFO] " << gateName << " jest teraz pusta i gotowa na nowych kibiców.\n";
+    }
+
+    sem_post(&gateSemaphore);  // **Zwalniamy semafor TYLKO jeśli kibic faktycznie wyszedł**
 }
+
+
 
 
 bool Gate::tryEnter(Fan fan) {
     if (sem_trywait(&gateSemaphore) == 0) {
-        // Sprawdź, czy jest miejsce
-        if (currentNumberOfFans == 0) {
-            currentClub = fan.getClub(); // Jeśli bramka pusta, przypisz jej klub
-            cout << "Gate " << gateName << " is now assigned to "
-                    << (currentClub == REAL_MADRYT ? "Real Madrid" : "FC Barcelona") << ".\n";
+        if (currentNumberOfFans == 0) {  // Bramka jest pusta, więc przypisujemy jej klub
+            currentClub = fan.getClub();
+            std::cout << "[DEBUG] Bramka " << gateName << " teraz przypisana do klubu: "
+                      << (currentClub == REAL_MADRYT ? "Real Madryt" : "FC Barcelona") << ".\n";
         }
 
         if (fan.getClub() == currentClub) {
-            // **Symulacja rejestracji kibica (10% czasu kontroli)**
-            usleep(50000); // 10% z 0.5 sekundy (kontrola trwa 0.5 sekundy)
+            std::cout << "[DEBUG] Kibic " << fan.getName() << " PRÓBUJE wejść do " << gateName << ".\n";
 
+            usleep(50000); // Symulacja rejestracji kibica
             currentNumberOfFans++;
-            cout << "Fan " << fan.getName() << " ("
-                    << (fan.getClub() == REAL_MADRYT ? "Real Madrid" : "FC Barcelona")
-                    << ") entered " << gateName << ". Current count: " << currentNumberOfFans << "\n";
 
-            // **Symulacja czasu kontroli bezpieczeństwa**
-            sleep(1);
+            std::cout << "[INFO] Kibic " << fan.getName() << " WESZEDŁ do " << gateName
+                      << ". Aktualna liczba kibiców: " << currentNumberOfFans << "\n";
 
-            // Kibic opuszcza bramkę po kontroli
-            leaveGate(fan);
             return true;
         } else {
-            cout << "Fan " << fan.getName() << " ("
-                    << (fan.getClub() == REAL_MADRYT ? "Real Madrid" : "FC Barcelona")
-                    << ") cannot enter " << gateName << ". Club mismatch.\n";
-            sem_post(&gateSemaphore); // Kibic nie pasuje do klubu, zwalnia miejsce
+            std::cout << "[WARNING] Kibic " << fan.getName() << " NIE MOŻE wejść do " << gateName
+                      << " (Bramka obsługuje inny klub!).\n";
+
+            sem_post(&gateSemaphore);
             return false;
         }
     } else {
-        cout << "Gate " << gateName << " is full. Fan " << fan.getName() << " cannot enter.\n";
-        return false; // Bramka pełna
+        std::cout << "[WARNING] Bramka " << gateName << " JEST PEŁNA. Kibic " << fan.getName() << " nie może wejść.\n";
+        return false;
     }
 }
 
+
+
 bool Gate::hasSpaceAndAccepts(Club club) const {
-    {
-        return currentNumberOfFans < gateCapacity && (currentClub == club || currentClub == static_cast<Club>(-1));
-    }
+    return currentNumberOfFans < gateCapacity && (currentClub == club || currentClub == static_cast<Club>(-1));
 }
 
 string Gate::getName() const {

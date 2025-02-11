@@ -41,7 +41,7 @@ def run_simulation():
         while not end_match_event.is_set():
             command = input("Input command (sygnał1, sygnał2, sygnał3): ").strip()
             write_fd.send(command)
-            time.sleep(0.2)
+            
 
     except KeyboardInterrupt:
         log("Program interrupted by the User.")

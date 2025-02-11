@@ -1,3 +1,0 @@
-/home/patryk/CLionProjects/stadion_so_projekt/cmake-build-debug/CMakeFiles/stadion.dir
-/home/patryk/CLionProjects/stadion_so_projekt/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/patryk/CLionProjects/stadion_so_projekt/cmake-build-debug/CMakeFiles/rebuild_cache.dir

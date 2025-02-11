@@ -41,7 +41,7 @@ def run_simulation():
         while not end_match_event.is_set():
             command = input("Input command (sygnał1, sygnał2, sygnał3): ").strip()
             write_fd.send(command)
-            
+
 
     except KeyboardInterrupt:
         log("Program interrupted by the User.")
@@ -119,6 +119,6 @@ def clean_processes(allocated_PIDs):
     for pid in allocated_PIDs:
         try:
             os.waitpid(pid, 0)
-            # os.kill(pid, 9)
+            
         except OSError as e:
             log(f"Error occurred while killing fan process: {e}")

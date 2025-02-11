@@ -65,14 +65,15 @@ def create_distributor_process(vip_queue, standard_queue, allocated_PIDs):
     if pid == 0:
         distributor_process(vip_queue, standard_queue, allocated_PIDs)
         os._exit(0)
+
     allocated_PIDs.append(pid)
 
 
 def generate_random_fan(index):
-    type = FanType.STANDARD if random.random() >= 0.05 else FanType.VIP
+    type = FanType.STANDARD if random.random() >= VIP_PROBABILITY else FanType.VIP
 
     if type == FanType.STANDARD:
-        age = random.randint(-20, 80)
+        age = random.randint(7, 80)
         team = random.choice([1, 2])
         return Fan(index, age, team, False, FanType.STANDARD)
 
@@ -119,6 +120,6 @@ def clean_processes(allocated_PIDs):
     for pid in allocated_PIDs:
         try:
             os.waitpid(pid, 0)
-            
+
         except OSError as e:
             log(f"Error occurred while killing fan process: {e}")

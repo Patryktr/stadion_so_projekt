@@ -37,7 +37,7 @@ class Fan:
         self.postpone_qty += 1
 
     def is_adult(self):
-        return self.age > 15
+        return self.age > ADULT_AGE
 
     def is_with_child(self):
         return self.with_child

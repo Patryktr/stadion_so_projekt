@@ -1,12 +1,12 @@
 import logging
 
-# Konfiguracja loggera
+# Logger configuration
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(message)s",
     handlers=[
-        logging.StreamHandler(),  # Logi na konsolę
-        logging.FileHandler("stadion.log")  # Logi do pliku
+        logging.StreamHandler(),  # Logs to console
+        logging.FileHandler("stadium.log")  # Logs to file
     ]
 )
 

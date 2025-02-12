@@ -1,7 +1,7 @@
 from enum import Enum
 from multiprocessing import Value, Event
 
-STADIUM_CAPACITY = 50
+STADIUM_CAPACITY = 10
 VIP_PROBABILITY = 0.05
 GATES_QTY = 3
 MAX_FANS_IN_GATE = 3
@@ -10,7 +10,7 @@ ADULT_AGE = 15
 team_in_gate = [Value('i', 0) for _ in range(GATES_QTY)]  # 0 means no team, 1 team A, 2 team B
 fans_in_gate = [Value('i', 0) for _ in range(GATES_QTY)]  # Fans qty on gates
 
-gate_lock_events = [Event() for _ in range(GATES_QTY)]
+
 
 security_check_event = Event()
 end_match_event = Event()

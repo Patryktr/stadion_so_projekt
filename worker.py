@@ -4,7 +4,7 @@ from config import security_check_event, end_match_event
 def stadium_worker(read_fd):
     try:
         while True:
-            command = read_fd.recv()
+            command = read_fd.readline().strip()
             if command:
                 if command == "sygnał1":
                     # Handling signal 1
@@ -18,6 +18,7 @@ def stadium_worker(read_fd):
                     # Handling signal 3 and terminating work
                     print("Received signal 3, terminating work")
                     end_match_event.set()
+                    print("End match event has been set")
                     break
                 else:
                     print(f"Unknown command: {command}")

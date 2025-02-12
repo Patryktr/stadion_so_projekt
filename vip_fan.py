@@ -14,5 +14,6 @@ def vip_fan_process(i):
 
     with fans_on_stadium_counter.get_lock():
         fans_on_stadium_counter.value -= 1
-        log(f"VIP Fan {i} left stadium. There are  m{fans_on_stadium_counter.value} fans left on the stadium.")
+        log(f"VIP Fan {i} left stadium. There are  {fans_on_stadium_counter.value} fans left on the stadium.")
+
     return

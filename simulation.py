@@ -6,7 +6,7 @@ from collections import deque
 from time import sleep
 
 from Logger import log
-from config import STADIUM_CAPACITY, end_match_event, FanType, security_check_event, Fan
+from config import STADIUM_CAPACITY, end_match_event, FanType, security_check_event, Fan,VIP_PROBABILITY
 from distibutor import distributor_process
 from worker import stadium_worker
 
@@ -14,15 +14,15 @@ from worker import stadium_worker
 def run_simulation():
     allocated_PIDs = []
     security_check_event.clear()
-    write_fd = None
+
     try:
         check_configuration()
-        read_fd, write_fd = create_pipe()
-        create_worker_process(read_fd, allocated_PIDs)
+        read_pipe, write_pipe = create_pipe()
+        create_worker_process(read_pipe, allocated_PIDs)
         vip_queue = deque()
         standard_queue = deque()
         fan_next_index = 0
-        while fan_next_index <= STADIUM_CAPACITY + 50:
+        while fan_next_index <= STADIUM_CAPACITY:
             fan = generate_random_fan(fan_next_index)
             if fan.fan_type == FanType.STANDARD:
                 if fan.is_adult():
@@ -40,7 +40,9 @@ def run_simulation():
 
         while not end_match_event.is_set():
             command = input("Input command (sygnał1, sygnał2, sygnał3): ").strip()
-            write_fd.send(command)
+            write_pipe.write(command + "\n")
+            write_pipe.flush()
+
 
 
     except KeyboardInterrupt:
@@ -50,7 +52,7 @@ def run_simulation():
     except Exception as e:
         print(f"Unexpected exception: {e}")
     finally:
-        clean(allocated_PIDs, write_fd)
+        clean(allocated_PIDs, write_pipe)
 
 
 def check_configuration():
@@ -100,17 +102,20 @@ def create_worker_process(read_fd, allocated_PIDs):
 
 def create_pipe():
     try:
-        return multiprocessing.Pipe()
+        read_fd, write_fd = os.pipe()
+        read_pipe = os.fdopen(read_fd, 'r', buffering=1)
+        write_pipe = os.fdopen(write_fd, 'w', buffering=1)
+        return read_pipe, write_pipe
     except OSError as e:
         log(f"Error occurred on pipe processing: {e}")
-        return
+        return None, None
 
 
-def clean(allocated_PIDs, write_fd):
+def clean(allocated_PIDs, write_pipe):
     clean_processes(allocated_PIDs)
     try:
-        if write_fd is not None:
-            write_fd.close()
+        if write_pipe is not None:
+            write_pipe.close()
 
     except Exception as e:
         log(f"Error occurred while closing pipe: {e}")

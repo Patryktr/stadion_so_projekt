@@ -21,7 +21,7 @@ def fan_process(fan, gate_number, adult_finished_check=None, adult_check_result=
         if fans_in_gate[gate_number].value == 0:
             team_in_gate[gate_number].value = 0
 
-        if random.random() >= 0.1:
+        if random.random() >= 1:
             with fans_on_stadium_counter.get_lock():
                 if fans_on_stadium_counter.value + fan_qty <= STADIUM_CAPACITY:
                     fans_on_stadium_counter.value += fan_qty

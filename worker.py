@@ -1,26 +1,29 @@
+import os
+import signal
 from config import security_check_event, end_match_event
 
 
-def stadium_worker(read_fd):
-    try:
-        while True:
-            command = read_fd.readline().strip()
-            if command:
-                if command == "sygnał1":
-                    # Handling signal 1
-                    print("Received signal 1")
-                    security_check_event.clear()
-                elif command == "sygnał2":
-                    # Handling signal 2
-                    print("Received signal 2")
-                    security_check_event.set()
-                elif command == "sygnał3":
-                    # Handling signal 3 and terminating work
-                    print("Received signal 3, terminating work")
-                    end_match_event.set()
-                    print("End match event has been set")
-                    break
-                else:
-                    print(f"Unknown command: {command}")
-    except OSError as e:
-        print(f"Error while reading from pipe: {e}")
+def handle_signal(signum, frame):
+    if signum == signal.SIGUSR1:
+        print("Received SIGUSR1 (sygnał1), clearing security check event.")
+        security_check_event.clear()
+    elif signum == signal.SIGUSR2:
+        print("Received SIGUSR2 (sygnał2), setting security check event.")
+        security_check_event.set()
+    elif signum == signal.SIGTERM:
+        print("Received SIGTERM (sygnał3), terminating work.")
+        end_match_event.set()
+        print("End match event has been set. Exiting...")
+        os._exit(0)
+
+
+def stadium_worker():
+    signal.signal(signal.SIGUSR1, handle_signal)
+    signal.signal(signal.SIGUSR2, handle_signal)
+    signal.signal(signal.SIGTERM, handle_signal)
+
+    print(f"Worker process {os.getpid()} is waiting for signals...")
+    while not end_match_event.is_set():
+        signal.pause()  # Wait for a signal
+
+    print("Worker process exiting...")

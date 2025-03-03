@@ -7,6 +7,7 @@ from Logger import log
 from config import team_in_gate, fans_in_gate, security_check_event, end_match_event, GATES_QTY, stadium_is_full
 from fan import fan_process
 from vip_fan import vip_fan_process
+from security_check_process import security_check_process
 
 
 def distributor_process(vip_queue, standard_queue, allocated_PIDs):
@@ -19,6 +20,7 @@ def distributor_process(vip_queue, standard_queue, allocated_PIDs):
 
     while not security_check_event.is_set():
         time.sleep(0.1)
+        # pass
 
     last_picked_fan_indexes = []
 
@@ -49,28 +51,29 @@ def distributor_process(vip_queue, standard_queue, allocated_PIDs):
                 break
 
             if may_enter:
-                if len(fans) == 1:
-                    pid = os.fork()
-                    if pid == 0:
-                        fan_process(fans[0], picked_gate_number)
-                        os._exit(0)
-                    allocated_PIDs.append(pid)
+
+                adult_finished_check = Event()
+                adult_finished_check.clear()
+                adult_check_result = Value('i', 0)
+
+                pid = os.fork()
+                if pid == 0:
+                    fan_process(fans[0],  adult_finished_check, adult_check_result)
+                    os._exit(0)
+                allocated_PIDs.append(pid)
 
                 if len(fans) == 2:
-                    adult_finished_check = Event()
-                    adult_finished_check.clear()
-                    adult_check_result = Value('i', 0)
                     pid = os.fork()
                     if pid == 0:
-                        fan_process(fans[1], picked_gate_number, adult_finished_check, adult_check_result)
+                        fan_process(fans[1],  adult_finished_check, adult_check_result)
                         os._exit(0)
                     allocated_PIDs.append(pid)
 
-                    pid = os.fork()
-                    if pid == 0:
-                        fan_process(fans[0], picked_gate_number, adult_finished_check, adult_check_result)
-                        os._exit(0)
-                    allocated_PIDs.append(pid)
+                pid = os.fork()
+                if pid == 0:
+                    security_check_process(fans[0], picked_gate_number, adult_finished_check, adult_check_result)
+                    os._exit(0)
+                allocated_PIDs.append(pid)
 
                 for fan in list(standard_queue):
                     if fan.index < fans[0].index:
@@ -81,8 +84,11 @@ def distributor_process(vip_queue, standard_queue, allocated_PIDs):
                         break
 
             time.sleep(0.2)
+            # pass
         else:
             time.sleep(2)
+            # pass
+
 
 def pick_next_fans(standard_queue, last_picked_fan_indexes):
     picked_fans = []

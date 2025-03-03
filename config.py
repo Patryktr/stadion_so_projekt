@@ -1,5 +1,6 @@
 from enum import Enum
 from multiprocessing import Value, Event
+import random
 
 STADIUM_CAPACITY = 10
 VIP_PROBABILITY = 0.05
@@ -33,6 +34,7 @@ class Fan:
         self.fan_type = fan_type
 
 
+
     def increment_postponed_qty(self):
         self.postpone_qty += 1
 
@@ -41,3 +43,6 @@ class Fan:
 
     def is_with_child(self):
         return self.with_child
+
+    def has_no_weapon(self):
+        return random.random() >= 0.1

@@ -19,8 +19,8 @@ def run_simulation():
     try:
         check_configuration()
 
-        worker_pid = create_worker_process()  # Zapisz PID procesu worker
-        print(f"Worker PID: {worker_pid}")  # Sprawdzenie poprawnego PID
+        worker_pid = create_worker_process()
+
         vip_queue = deque()
         standard_queue = deque()
         fan_next_index = 0

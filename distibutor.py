@@ -4,19 +4,19 @@ import time
 from multiprocessing import Event, Value
 
 from Logger import log
-from config import team_in_gate, fans_in_gate, security_check_event, end_match_event, GATES_QTY, stadium_is_full
+from config import team_in_gate, fans_in_gate, security_check_event, end_match_event, GATES_QTY, stadium_is_full, append_PID
 from fan import fan_process
 from vip_fan import vip_fan_process
 from security_check_process import security_check_process
 
 
-def distributor_process(vip_queue, standard_queue, allocated_PIDs):
+def distributor_process(vip_queue, standard_queue):
     for index in range(len(vip_queue)):
         pid = os.fork()
         if pid == 0:
             vip_fan_process(index)
             os._exit(0)
-        allocated_PIDs.append(pid)
+        append_PID(pid)
 
     while not security_check_event.is_set():
         time.sleep(0.1)
@@ -60,20 +60,21 @@ def distributor_process(vip_queue, standard_queue, allocated_PIDs):
                 if pid == 0:
                     fan_process(fans[0],  adult_finished_check, adult_check_result)
                     os._exit(0)
-                allocated_PIDs.append(pid)
+                append_PID(pid)
 
                 if len(fans) == 2:
                     pid = os.fork()
                     if pid == 0:
                         fan_process(fans[1],  adult_finished_check, adult_check_result)
                         os._exit(0)
-                    allocated_PIDs.append(pid)
+                    append_PID(pid)
 
                 pid = os.fork()
                 if pid == 0:
-                    security_check_process(fans[0], picked_gate_number, adult_finished_check, adult_check_result)
+                    adult_fan = fans[1] if len(fans) == 2 else fans[0]
+                    security_check_process(adult_fan, picked_gate_number, adult_finished_check, adult_check_result)
                     os._exit(0)
-                allocated_PIDs.append(pid)
+                append_PID(pid)
 
                 for fan in list(standard_queue):
                     if fan.index < fans[0].index:

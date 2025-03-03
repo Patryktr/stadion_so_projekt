@@ -21,9 +21,9 @@ def security_check_process(adult_fan, gate_number, adult_finished_check=None, ad
         with fans_on_stadium_counter.get_lock():
             if fans_on_stadium_counter.value + fan_qty <= STADIUM_CAPACITY:
                 fans_on_stadium_counter.value += fan_qty
-                log(f"Fan {adult_fan.index} from team {adult_fan.team} entered in the stadium.")
                 adult_check_result.value = 1
                 adult_finished_check.set()
+                return
             else:
                 stadium_is_full.set()
                 adult_check_result.value = -1

@@ -7,24 +7,24 @@ from collections import deque
 from time import sleep
 
 from Logger import log
-from config import STADIUM_CAPACITY, end_match_event, FanType, security_check_event, Fan, VIP_PROBABILITY
+from config import STADIUM_CAPACITY, end_match_event, FanType, security_check_event, Fan, VIP_PROBABILITY, \
+    append_PID, allocated_PIDs
 from distibutor import distributor_process
 from worker import stadium_worker
 
 
 def run_simulation():
-    allocated_PIDs = []
     security_check_event.clear()
 
     try:
         check_configuration()
 
-        worker_pid = create_worker_process(allocated_PIDs)  # Zapisz PID procesu worker
+        worker_pid = create_worker_process()  # Zapisz PID procesu worker
         print(f"Worker PID: {worker_pid}")  # Sprawdzenie poprawnego PID
         vip_queue = deque()
         standard_queue = deque()
         fan_next_index = 0
-        while fan_next_index <= STADIUM_CAPACITY+10:
+        while fan_next_index <= STADIUM_CAPACITY + 15:
             fan = generate_random_fan(fan_next_index)
             if fan.fan_type == FanType.STANDARD:
                 if fan.is_adult():
@@ -38,7 +38,7 @@ def run_simulation():
                 vip_queue.append(fan)
             fan_next_index += 1
 
-        create_distributor_process(vip_queue, standard_queue, allocated_PIDs)
+        create_distributor_process(vip_queue, standard_queue)
 
         while not end_match_event.is_set():
             command = input("Input command (sygnał1, sygnał2, sygnał3): ").strip()
@@ -56,6 +56,7 @@ def run_simulation():
                 print("Nieznana komenda!")
 
 
+
     except KeyboardInterrupt:
         log("Program interrupted by the User.")
     except OSError as e:
@@ -63,7 +64,7 @@ def run_simulation():
     except Exception as e:
         print(f"Unexpected exception: {e}")
     finally:
-        clean(allocated_PIDs)
+        clean()
 
 
 def check_configuration():
@@ -73,13 +74,13 @@ def check_configuration():
         os._exit(-1)
 
 
-def create_distributor_process(vip_queue, standard_queue, allocated_PIDs):
+def create_distributor_process(vip_queue, standard_queue):
     pid = os.fork()
     if pid == 0:
-        distributor_process(vip_queue, standard_queue, allocated_PIDs)
+        distributor_process(vip_queue, standard_queue)
         os._exit(0)
 
-    allocated_PIDs.append(pid)
+    append_PID(pid)
 
 
 def generate_random_fan(index):
@@ -98,20 +99,21 @@ def generate_adult_fan_for_child(index, team):
     return Fan(index, 30, team, True, FanType.STANDARD)
 
 
-def create_worker_process(allocated_PIDs):
+def create_worker_process():
     """ Tworzy proces worker i zwraca jego PID """
     pid = os.fork()
     if pid == 0:
         stadium_worker()  # Worker nie potrzebuje argumentu, bo czyta sygnały
         os._exit(0)
-    allocated_PIDs.append(pid)
+    append_PID(pid)
     return pid  # Zwracamy PID worker'a
 
 
-def clean(allocated_PIDs):
+def clean():
     """ Zamyka procesy w allocated_PIDs """
-    for pid in allocated_PIDs:
+    while not allocated_PIDs.empty():
         try:
+            pid = allocated_PIDs.get()
             os.waitpid(pid, 0)
         except OSError as e:
             log(f"Error occurred while killing process: {e}")

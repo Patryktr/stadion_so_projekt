@@ -1,8 +1,10 @@
 from enum import Enum
 from multiprocessing import Value, Event
 import random
+from queue import Queue
+from Logger import log
 
-STADIUM_CAPACITY = 10
+STADIUM_CAPACITY = 20
 VIP_PROBABILITY = 0.05
 GATES_QTY = 3
 MAX_FANS_IN_GATE = 3
@@ -11,13 +13,15 @@ ADULT_AGE = 15
 team_in_gate = [Value('i', 0) for _ in range(GATES_QTY)]  # 0 means no team, 1 team A, 2 team B
 fans_in_gate = [Value('i', 0) for _ in range(GATES_QTY)]  # Fans qty on gates
 
-
+allocated_PIDs=Queue()
 
 security_check_event = Event()
 end_match_event = Event()
 stadium_is_full = Event()
 fans_on_stadium_counter = Value('i', 0)
 
+def append_PID(pid):
+    allocated_PIDs.put(pid)
 
 class FanType(Enum):
     VIP = "VIP"
